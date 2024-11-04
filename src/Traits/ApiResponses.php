@@ -5,6 +5,8 @@ namespace AthosBenther\LaravelApiResponses\Traits;
 use AthosBenther\LaravelApiResponses\ApiResponse;
 use Exception;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Symfony\Component\HttpFoundation\Response;
 
 trait ApiResponses
@@ -74,6 +76,42 @@ trait ApiResponses
             $statusCode,
             $jsonEncodingFlags
         );
+    }
+
+    public function paginatedResponse(string $message = null, Paginator|LengthAwarePaginator $paginated): ApiResponse
+    {
+        $meta = [
+            'previous' => $paginated->previousPageUrl(),
+            'next' => $paginated->nextPageUrl()
+        ];
+
+        if ($paginated instanceof LengthAwarePaginator) {
+            $meta = array_merge(
+                $meta,
+                [
+                    'current_page' => $paginated->currentPage(),
+                    'first_page' => $paginated->url(1),
+                    'last_page' => $paginated->url($paginated->lastPage()),
+                    'path' => $paginated->path(),
+                    'per_page' => $paginated->perPage(),
+                    'last_page' => $paginated->lastPage(),
+                    'from' => $paginated->firstItem(),
+                    'to' => $paginated->lastItem(),
+                    'total' => $paginated->total(),
+                    'links' => $paginated->linkCollection()->toArray(),
+                ]
+            );
+        }
+
+        $response = new ApiResponse(
+            $message ?? 'Data retrieved',
+            $paginated->items(),
+            200
+        );
+
+        $response->meta($meta);
+
+        return $response;
     }
 
     /**
