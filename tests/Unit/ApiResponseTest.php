@@ -2,7 +2,6 @@
 
 use AthosBenther\LaravelApiResponses\ApiResponse;
 use Illuminate\Contracts\Support\Arrayable;
-use Tests\Extras\ArrayableObject;
 use Tests\TestCase;
 
 
@@ -63,7 +62,7 @@ describe('ApiResponse', function () {
 
         $arrayable = new class implements Arrayable {
             public array $data;
-            public function toArray()
+            public function toArray(): array
             {
                 return $this->data;
             }
